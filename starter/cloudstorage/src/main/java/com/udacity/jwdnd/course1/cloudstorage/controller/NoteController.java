@@ -22,15 +22,16 @@ public class NoteController {
         this.userService = userService;
     }
 
-    @PostMapping("/note-upload")
-    public String addNote(UserNoteForm userNoteForm, Authentication authentication, Model model) {
+    @PostMapping("/note")
+    public String note(UserNoteForm userNoteForm, Authentication authentication, Model model) {
         Integer userId = userService.getUser(authentication.getName()).getUserId();
-        String message = noteService.addNote(new UserNote(
-                null,
-                userNoteForm.getNoteTitle(),
-                userNoteForm.getNoteDescription(),
-                userId
-        ));
+
+        String message;
+        if(userNoteForm.getNoteId() > 0) {
+            message = noteService.addNote(userNoteForm, userId, true);
+        } else {
+            message = noteService.addNote(userNoteForm, userId, false);
+        }
         if (message == null) {
             model.addAttribute("success", true);
         } else {

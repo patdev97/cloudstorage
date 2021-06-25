@@ -2,6 +2,7 @@ package com.udacity.jwdnd.course1.cloudstorage.services;
 
 import com.udacity.jwdnd.course1.cloudstorage.data.UserNote;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.NoteMapper;
+import com.udacity.jwdnd.course1.cloudstorage.model.UserNoteForm;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,8 +24,19 @@ public class NoteService {
         return noteMapper.getUserNotes(userId);
     }
 
-    public String addNote(UserNote note) {
-        Integer result = noteMapper.addNote(note);
+    public String addNote(UserNoteForm userNoteForm, Integer userId, boolean update) {
+        UserNote note = new UserNote(
+                userNoteForm.getNoteId(),
+                userNoteForm.getNoteTitle(),
+                userNoteForm.getNoteDescription(),
+                userId
+        );
+        Integer result;
+        if(update) {
+            result = noteMapper.updateNote(note);
+        } else {
+            result = noteMapper.addNote(note);
+        }
         if(result < 0) {
             return "Something went wrong. Please try again.";
         } else {
