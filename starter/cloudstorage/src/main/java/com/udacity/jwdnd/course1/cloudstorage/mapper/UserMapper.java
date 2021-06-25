@@ -14,7 +14,7 @@ public interface UserMapper {
     @Options(useGeneratedKeys = true, keyProperty = "userId")
     Integer addUser(User user);
 
-    @Delete("DELETE * FROM USERS WHERE userid = #{userId}")
+    @Delete("DELETE FROM USERS WHERE userid = #{userId}")
     void removeUser(Integer userId);
 
 }

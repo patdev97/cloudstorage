@@ -2,7 +2,10 @@ package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.data.User;
 import com.udacity.jwdnd.course1.cloudstorage.data.UserFile;
+import com.udacity.jwdnd.course1.cloudstorage.data.UserNote;
+import com.udacity.jwdnd.course1.cloudstorage.model.UserNoteForm;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
+import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -18,20 +21,28 @@ public class HomeController {
 
     private FileService fileService;
     private UserService userService;
+    private NoteService noteService;
 
-    public HomeController(FileService fileService, UserService userService) {
+    public HomeController(FileService fileService, UserService userService, NoteService noteService) {
         this.fileService = fileService;
         this.userService = userService;
+        this.noteService = noteService;
     }
 
     @GetMapping
-    public String showHomepage(Model model, Authentication authentication) {
+    public String showHomepage(Model model, Authentication authentication, UserNoteForm userNoteForm) {
         String username = authentication.getName();
         User user = userService.getUser(username);
+        Integer userId = user.getUserId();
 
-        List<UserFile> userFiles = fileService.getUserFiles(user.getUserId());
+        List<UserFile> userFiles = fileService.getUserFiles(userId);
         if (!userFiles.isEmpty()) {
             model.addAttribute("files", userFiles);
+        }
+
+        List<UserNote> userNotes = noteService.getUserNotes(userId);
+        if(!userNotes.isEmpty()) {
+            model.addAttribute("notes", userNotes);
         }
 
         return "home";
