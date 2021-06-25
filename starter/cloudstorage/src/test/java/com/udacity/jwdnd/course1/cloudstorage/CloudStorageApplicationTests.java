@@ -14,6 +14,7 @@ class CloudStorageApplicationTests {
 	private int port;
 
 	private WebDriver driver;
+	private static final String BASE_URL = "http://localhost:";
 
 	@BeforeAll
 	static void beforeAll() {
@@ -33,9 +34,20 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
-	public void getLoginPage() {
-		driver.get("http://localhost:" + this.port + "/login");
-		Assertions.assertEquals("Login", driver.getTitle());
+	public void signupAndLogin() throws InterruptedException {
+		driver.get(BASE_URL + this.port + "/signup");
+
+		SignupPage signupPage = new SignupPage(driver);
+		signupPage.signup("Hans", "Wurst", "testuser", "testpass");
+
+		driver.get(BASE_URL + this.port + "/login");
+
+		LoginPage loginPage = new LoginPage(driver);
+		loginPage.login("testuser", "testpass");
+
+		Assertions.assertEquals("Home", driver.getTitle());
+
+		Thread.sleep(120000);
 	}
 
 }
