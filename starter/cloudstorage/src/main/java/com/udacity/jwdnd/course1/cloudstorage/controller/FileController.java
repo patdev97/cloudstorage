@@ -4,6 +4,10 @@ import com.udacity.jwdnd.course1.cloudstorage.data.UserFile;
 import com.udacity.jwdnd.course1.cloudstorage.data.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -71,6 +75,21 @@ public class FileController {
         fileService.deleteFile(fileId);
         model.addAttribute("success", true);
         return "result";
+    }
+
+    @GetMapping("/file-download/{fileId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable(value = "fileId") Integer fileId, Model model) {
+        UserFile file = fileService.getFile(fileId);
+
+        HttpHeaders header = new HttpHeaders();
+        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = " + file.getFileName());
+        header.add("Cache-control", "no-cache, no-store, must-revalidate");
+        header.add("Pragma", "no-cache");
+        header.add("Expires", "0");
+        ByteArrayResource resource = new ByteArrayResource((file.getFileData()));
+        return ResponseEntity.ok()
+                .headers(header)
+                .body(resource);
     }
 
 
