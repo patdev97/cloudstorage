@@ -49,12 +49,12 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="files : ${files}">
+                                <tr th:each="file : ${files}">
                                     <td>
                                         <a target="_blank" class="btn btn-success">View</a>
-                                        <a  class="btn btn-danger">Delete</a>
+                                        <a th:href="@{'/file-delete/' + ${file.fileId}}" class="btn btn-danger">Delete</a>
                                     </td>
-                                    <th scope="row" th:text="${files.fileName}">ExampleFile.txt</th>
+                                    <th scope="row" th:text="${file.fileName}">ExampleFile.txt</th>
                                 </tr>
                                 </tbody>
                             </table>
