@@ -1,8 +1,10 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.data.File;
+import com.udacity.jwdnd.course1.cloudstorage.data.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 
 @Controller
 @RequestMapping("/file-upload")
@@ -24,7 +27,7 @@ public class FileUploadController {
     }
 
     @PostMapping
-    public String uploadFile(@RequestParam("fileUpload") MultipartFile fileUpload, Model model) throws IOException {
+    public String uploadFile(@RequestParam("fileUpload") MultipartFile fileUpload, Model model, Principal principal) throws IOException {
 
         String errorMessage = null;
 
@@ -36,7 +39,7 @@ public class FileUploadController {
             file.setFileName(fileUpload.getOriginalFilename());
             file.setContentType(file.getContentType());
             file.setFileSize(fileUpload.getSize());
-            file.setUserId(userService.getUser(currentUsername()).getUserId());
+            file.setUserId(userService.getUser(principal.getName()).getUserId());
             file.setFileData(fileUpload.getBytes());
 
             int fileId = fileService.insert(file);
@@ -48,17 +51,10 @@ public class FileUploadController {
             }
         }
 
-        if(errorMessage != null) {
+        if (errorMessage != null) {
             model.addAttribute("errorMessage", errorMessage);
         }
 
         return "result";
     }
-
-    @RequestMapping(value = "/username", method = RequestMethod.GET)
-    @ResponseBody
-    public String currentUsername() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
-    }
-
 }

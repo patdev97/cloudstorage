@@ -17,4 +17,8 @@ public class FileService {
         return fileMapper.addFile(file);
     }
 
+    public File getFile(int id) {
+        return fileMapper.getFile(id);
+    }
+
 }
