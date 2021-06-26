@@ -137,7 +137,7 @@
                     + Add a New Credential
                 </button>
 
-                <div class="table-responsive">
+                <div class="table-responsive" th:if="${credentials}">
                     <table class="table table-striped" th:object="${credentials}" id="credentialTable">
                         <thead>
                         <tr>
@@ -148,14 +148,17 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
+                        <tr th:each="credential : ${credentials}">
                             <td>
-                                <button type="button" class="btn btn-success">Edit</button>
-                                <a class="btn btn-danger">Delete</a>
+                                <button th:onclick="javascript:showCredentialModal([[${credential}]])"
+                                        type="button" class="btn btn-success">Edit
+                                </button>
+                                <a th:href="@{'/credential-delete/' + ${credential.credentialId}}"
+                                   class="btn btn-danger">Delete</a>
                             </td>
-                            <th scope="row">Example Credential URL</th>
-                            <td>Example Credential Username</td>
-                            <td>Example Credential Password</td>
+                            <th scope="row" th:text="${credential.url}">Example Credential URL</th>
+                            <td th:text="${credential.username}">Example Credential Username</td>
+                            <td th:text="${credential.password}">Example Credential Password</td>
                         </tr>
                         </tbody>
                     </table>
@@ -172,21 +175,26 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="#" method="POST">
-                                    <input type="hidden" name="credentialId" id="credential-id">
+                                <form action="#" method="POST" th:action="@{/credentials}"
+                                      th:object="${userCredentialsForm}">
+                                    <input th:field="*{credentialId}" type="hidden" name="credentialId"
+                                           id="credential-id">
                                     <div class="form-group">
                                         <label for="note-title" class="col-form-label">URL</label>
-                                        <input type="text" name="url" class="form-control" id="credential-url"
+                                        <input th:field="*{credentialUrl}" type="text" name="url" class="form-control"
+                                               id="credential-url"
                                                maxlength="100" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="note-title" class="col-form-label">Username</label>
-                                        <input type="text" name="username" class="form-control" id="credential-username"
+                                        <input th:field="*{credentialUsername}" type="text" name="username"
+                                               class="form-control" id="credential-username"
                                                maxlength="30" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="note-title" class="col-form-label">Password</label>
-                                        <input type="text" name="password" class="form-control" id="credential-password"
+                                        <input th:field="*{credentialPassword}" type="text" name="password"
+                                               class="form-control" id="credential-password"
                                                maxlength="30" required>
                                     </div>
                                     <button id="credentialSubmit" type="submit" class="d-none"></button>
@@ -212,13 +220,6 @@
 
 <!--For opening the note modal-->
 <script type="text/javascript">
-            // For opening the note modal
-            function showNoteModal(noteId, noteTitle, noteDescription) {
-                $('#note-id').val(noteId ? noteId : 0);
-                $('#note-title').val(noteTitle ? noteTitle : '');
-                $('#note-description').val(noteDescription ? noteDescription : '');
-                $('#noteModal').modal('show');
-            }
 
             // For opening the note modal
             function showNoteModal(note) {
@@ -229,23 +230,13 @@
             }
 
             // For opening the credentials modal
-            function showCredentialModal(credentialId, url, username, password) {
-                $('#credential-id').val(credentialId ? credentialId : 0);
-                $('#credential-url').val(url ? url : '');
-                $('#credential-username').val(username ? username : '');
-                $('#credential-password').val(password ? password : '');
-                $('#credentialModal').modal('show');
-            }
-
-            // For opening the credentials modal
-            function showCredentialModal(credential, decryptedPassword) {
+            function showCredentialModal(credential) {
                 $('#credential-id').val(credential && credential.credentialId ? credential.credentialId : 0);
                 $('#credential-url').val(credential && credential.url ? credential.url : '');
                 $('#credential-username').val(credential && credential.username ? credential.username : '');
-                $('#credential-password').val(credential && credential.decryptedPassword ? credential.decryptedPassword : decryptedPassword);
+                $('#credential-password').val(credential && credential.decryptedPassword ? credential.decryptedPassword : '');
                 $('#credentialModal').modal('show');
             }
-
 
 </script>
 </body>
