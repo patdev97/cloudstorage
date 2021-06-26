@@ -80,12 +80,11 @@ public class FileController {
     @GetMapping("/file-download/{fileId}")
     public ResponseEntity<Resource> downloadFile(@PathVariable(value = "fileId") Integer fileId, Model model) {
         UserFile file = fileService.getFile(fileId);
-
         HttpHeaders header = new HttpHeaders();
         header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = " + file.getFileName());
+        header.add("Expires", "0");
         header.add("Cache-control", "no-cache, no-store, must-revalidate");
         header.add("Pragma", "no-cache");
-        header.add("Expires", "0");
         ByteArrayResource resource = new ByteArrayResource((file.getFileData()));
         return ResponseEntity.ok()
                 .headers(header)
