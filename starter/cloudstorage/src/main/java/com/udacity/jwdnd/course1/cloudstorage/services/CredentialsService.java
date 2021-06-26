@@ -3,6 +3,7 @@ package com.udacity.jwdnd.course1.cloudstorage.services;
 import com.udacity.jwdnd.course1.cloudstorage.data.UserCredentials;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialsMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.UserCredentialsForm;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -35,6 +36,18 @@ public class CredentialsService {
     }
 
     public String addCredentials(UserCredentialsForm userCredentialsForm, Integer userId, boolean update) {
+        for (UserCredentials credentials : this.getUserCredentials(userId)) {
+            if (credentials.getUrl().equals(userCredentialsForm.getCredentialUrl())
+                    && credentials.getUsername().equals(userCredentialsForm.getCredentialUsername())) {
+                return "You have already saved credentials for this URL and username.";
+            }
+        }
+
+        UrlValidator urlValidator = new UrlValidator();
+        if(!urlValidator.isValid(userCredentialsForm.getCredentialUrl())) {
+            return "The given URL is not valid. Please check.";
+        }
+
         SecureRandom random = new SecureRandom();
         byte[] key = new byte[16];
         random.nextBytes(key);
