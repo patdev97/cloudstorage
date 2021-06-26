@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class LoginController {
 
     @GetMapping
-    public String showLogin() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public String showLogin(Authentication authentication) {
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
             return "login";
         }
