@@ -31,13 +31,19 @@ public class NoteService {
                 userNoteForm.getNoteDescription(),
                 userId
         );
+        for (UserNote tempNote : noteMapper.getUserNotes(userId)) {
+            if (tempNote.getNoteTitle().equals(note.getNoteTitle())
+                    && tempNote.getNoteDescription().equals(note.getNoteDescription())) {
+                return "Note already available.";
+            }
+        }
         Integer result;
-        if(update) {
+        if (update) {
             result = noteMapper.updateNote(note);
         } else {
             result = noteMapper.addNote(note);
         }
-        if(result < 0) {
+        if (result < 0) {
             return "Something went wrong. Please try again.";
         } else {
             return null;

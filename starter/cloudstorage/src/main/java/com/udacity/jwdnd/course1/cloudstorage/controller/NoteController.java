@@ -26,16 +26,19 @@ public class NoteController {
         Integer userId = userService.getUser(authentication.getName()).getUserId();
 
         String message;
-        if(userNoteForm.getNoteId() > 0) {
-            message = noteService.addNote(userNoteForm, userId, true);
+        if(userNoteForm.getNoteDescription().length() > 1000) {
+            message = "I am sorry, but you cannot store more than 1000 characters in your note.";
         } else {
-            message = noteService.addNote(userNoteForm, userId, false);
+            if (userNoteForm.getNoteId() > 0) {
+                message = noteService.addNote(userNoteForm, userId, true);
+            } else {
+                message = noteService.addNote(userNoteForm, userId, false);
+            }
+            if (message == null) {
+                model.addAttribute("success", true);
+            }
         }
-        if (message == null) {
-            model.addAttribute("success", true);
-        } else {
-            model.addAttribute("errorMessage", message);
-        }
+        model.addAttribute("errorMessage", message);
         return "result";
     }
 

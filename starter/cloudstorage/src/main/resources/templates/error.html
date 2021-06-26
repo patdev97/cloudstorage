@@ -12,7 +12,8 @@
 <div class="container justify-content-center w-50 p-3" style="margin-top: 5em;">
     <div class="alert alert-danger fill-parent">
         <h1 class="display-5">Error</h1>
-        <p>Something went wrong. We are on it.</p>
+        <p th:if="${errorMessage}" th:text="${errorMessage}">Example custom error Message.</p>
+        <p th:unless="${errorMessage}">Something went wrong. We are on it.</p>
         <p>Click <a th:href="@{/home}">here</a> to get back.</p>
     </div>
 </div>
