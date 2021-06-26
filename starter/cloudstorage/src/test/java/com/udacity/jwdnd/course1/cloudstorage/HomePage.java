@@ -30,7 +30,7 @@ public class HomePage {
     @FindBy(id = "note-description")
     private WebElement noteDescription;
 
-    @FindBy(id = "note-submit")
+    @FindBy(id = "noteSubmit")
     private WebElement noteSubmit;
 
     // Credentials elements
