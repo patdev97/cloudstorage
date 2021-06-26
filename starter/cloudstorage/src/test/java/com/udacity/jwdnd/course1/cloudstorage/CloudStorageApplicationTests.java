@@ -6,6 +6,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -59,8 +60,6 @@ class CloudStorageApplicationTests {
 
 		Assertions.assertEquals("Home", driver.getTitle());
 
-		//Thread.sleep(120000);
-
 		HomePage homePage = new HomePage(driver);
 		homePage.logout();
 
@@ -69,7 +68,6 @@ class CloudStorageApplicationTests {
 		driver.get(BASE_URL + this.port + "/home");
 
 		Assertions.assertEquals("Login", driver.getTitle());
-
 	}
 
 	private void signupAndLogin() {
@@ -85,8 +83,10 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
-	public void createNote() throws InterruptedException {
+	public void notes() throws InterruptedException {
 		this.signupAndLogin();
+
+		// CREATE Test
 
 		HomePage homePage = new HomePage(driver);
 		homePage.navNoteAndAdd();
@@ -102,25 +102,10 @@ class CloudStorageApplicationTests {
 
 		Assertions.assertEquals("Test title", notes[0].get(0));
 		Assertions.assertEquals("Test Note. Wanting to know if it works.", notes[1].get(0));
-	}
 
-	@Test
-	public void editNote() throws InterruptedException {
-		this.signupAndLogin();
-
-		HomePage homePage = new HomePage(driver);
-		homePage.navNoteAndAdd();
-		homePage.createNote("Test title", "Test Note. Wanting to know if it works.");
-
-		ResultPage resultPage = new ResultPage(driver);
-		resultPage.link.click();
-
-		homePage.navNotesTab.click();
-
-		Thread.sleep(1000);
+		// EDIT Test
 
 		homePage.clickEditNote(driver, 0);
-
 		Thread.sleep(200);
 
 		homePage.createNote("New title", "And also a new description");
@@ -128,35 +113,20 @@ class CloudStorageApplicationTests {
 		resultPage.link.click();
 
 		homePage.navNotesTab.click();
-
 		Thread.sleep(1000);
-		List[] notes = homePage.getNotes(driver);
+
+		notes = homePage.getNotes(driver);
 
 		Assertions.assertEquals("New title", notes[0].get(0));
 		Assertions.assertEquals("And also a new description", notes[1].get(0));
-	}
 
-	@Test
-	public void deleteNote() throws InterruptedException {
-		this.signupAndLogin();
-
-		HomePage homePage = new HomePage(driver);
-		homePage.navNoteAndAdd();
-		homePage.createNote("Test title", "Test Note. Wanting to know if it works.");
-
-		ResultPage resultPage = new ResultPage(driver);
-		resultPage.link.click();
-
-		homePage.navNotesTab.click();
-
-		Thread.sleep(1000);
+		// DELETE Test
 
 		homePage.deleteNote(driver, 0);
 
 		resultPage.link.click();
 
 		homePage.navNotesTab.click();
-
 		Thread.sleep(1000);
 
 		boolean available;
@@ -169,7 +139,65 @@ class CloudStorageApplicationTests {
 
 		Assertions.assertEquals(false, available);
 	}
-	
-	
+
+	@Test
+	public void credentials() throws InterruptedException {
+		this.signupAndLogin();
+
+		// CREATE Test
+
+		HomePage homePage = new HomePage(driver);
+		homePage.navCredentialsAndAdd();
+		homePage.createCredential("google.com", "testuser", "pass");
+
+		ResultPage resultPage = new ResultPage(driver);
+		resultPage.link.click();
+
+		homePage.navCredentialsTab.click();
+		Thread.sleep(1000);
+
+		List<WebElement[]> credentials = homePage.getCredentials(driver);
+
+		Assertions.assertEquals("google.com", credentials.get(0)[2].getText());
+		Assertions.assertEquals("testuser", credentials.get(0)[3].getText());
+		Assertions.assertNotEquals("pass", credentials.get(0)[4].getText());
+
+		// EDIT Test
+
+		credentials.get(0)[0].click();
+		Thread.sleep(1000);
+
+		homePage.createCredential("bing.com", "newuser","newpass");
+
+		resultPage.link.click();
+
+		homePage.navCredentialsTab.click();
+		Thread.sleep(1000);
+
+		credentials = homePage.getCredentials(driver);
+
+		Assertions.assertEquals("bing.com", credentials.get(0)[2].getText());
+		Assertions.assertEquals("newuser", credentials.get(0)[3].getText());
+		Assertions.assertNotEquals("newpass", credentials.get(0)[4].getText());
+
+		// DELETE Test
+
+		credentials.get(0)[1].click();
+
+		resultPage.link.click();
+
+		homePage.navCredentialsTab.click();
+		Thread.sleep(1000);
+
+		boolean available;
+		try {
+			driver.findElement(By.id("credentialTable"));
+			available = true;
+		} catch(NoSuchElementException e) {
+			available = false;
+		}
+
+		Assertions.assertEquals(false, available);
+	}
 
 }
