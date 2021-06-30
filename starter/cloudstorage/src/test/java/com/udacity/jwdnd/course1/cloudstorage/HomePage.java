@@ -1,153 +1,139 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomePage {
 
-    @FindBy(xpath = "//div[@id='logoutDiv']/form[1]/button[1]")
-    private WebElement logoutButton;
-
-    // Note elements
-    @FindBy(id = "nav-notes-tab")
-    public WebElement navNotesTab;
-
-    @FindBy(xpath = "//div[@id='nav-notes']/button[1]")
-    private WebElement buttonAddNewNote;
-
-    @FindBy(id = "note-id")
-    private WebElement noteId;
-
-    @FindBy(id = "note-title")
-    private WebElement noteTitle;
-
-    @FindBy(id = "note-description")
-    private WebElement noteDescription;
-
-    @FindBy(id = "noteSubmit")
-    private WebElement noteSubmit;
-
-    // Credentials elements
-
-    @FindBy(id = "nav-credentials-tab")
-    public WebElement navCredentialsTab;
-
-    @FindBy(xpath = "//div[@id='nav-credentials']/button[1]")
-    private WebElement buttonAddNewCredential;
-
-    @FindBy(id = "credential-url")
-    private WebElement credentialUrl;
-
-    @FindBy(id = "credential-username")
-    private WebElement credentialUsername;
-
-    @FindBy(id = "credential-password")
-    private WebElement credentialPassword;
-
-    @FindBy(id = "credentialSubmit")
-    private WebElement credentialSubmit;
+    private WebDriver driver;
+    private JavascriptExecutor executor;
 
     // Constructor
 
     public HomePage(WebDriver driver) {
-        PageFactory.initElements(driver, this);
+        this.driver = driver;
+        this.executor = (JavascriptExecutor) driver;
     }
 
     // General methods
-
-    public void logout() {
-        this.logoutButton.click();
-    }
 
     private List<WebElement> getTableRows(WebDriver driver, String table) {
         WebElement noteTableBody = driver.findElement(By.id(table)).findElement(By.tagName("tbody"));
         return noteTableBody.findElements(By.tagName("tr"));
     }
 
+    private void clickButton(String id) {
+        WebElement webElement = driver.findElement(By.id(id));
+        executor.executeScript("arguments[0].click();", webElement);
+    }
+
+    private String getValue(String id) {
+        WebElement webElement = driver.findElement(By.id(id));
+        return (String) executor.executeScript("return arguments[0].value;", webElement);
+    }
+
+    private void setValue(String id, String value) {
+        WebElement webElement = driver.findElement(By.id(id));
+        executor.executeScript("arguments[0].value='" + value + "';", webElement);
+    }
+
+    private List<WebElement> getWebElements(String id) {
+        return driver.findElements(By.id(id));
+    }
+
+    // Logout method
+
+    public void logout() {
+        this.clickButton("logout-button");
+    }
+
     // Note methods
 
-    public void navNoteAndAdd() throws InterruptedException {
-        this.navNotesTab.click();
-        Thread.sleep(1000);
-        this.buttonAddNewNote.click();
-        Thread.sleep(1000);
+    public void navToNotesTab() {
+        this.clickButton("nav-notes-tab");
     }
 
-    public void createNote(String title, String description) throws InterruptedException {
-        this.noteTitle.clear();
-        this.noteTitle.sendKeys(title);
-
-        this.noteDescription.clear();
-        this.noteDescription.sendKeys(description);
-
-        this.noteSubmit.submit();
+    public void navNoteAndAdd() {
+        this.navToNotesTab();
+        this.clickButton("button-add-new-note");
     }
 
-    public List<String>[] getNotes(WebDriver driver) {
+    public void createNote(String title, String description) {
+        this.setValue("note-title", title);
+        this.setValue("note-description", description);
+        this.clickButton("note-save");
+    }
+
+    public List<String>[] getNotes() {
         List<String> titles = new ArrayList<>();
-        List<String> descriptions = new ArrayList<>();
-
-        List<WebElement> tableRows = this.getTableRows(driver, "noteTable");
-
-        for(WebElement tr : tableRows) {
-            WebElement title = tr.findElement(By.tagName("th"));
-            WebElement description = tr.findElements(By.tagName("td")).get(1);
-            titles.add(title.getText());
-            descriptions.add(description.getText());
+        for(WebElement temp : this.getWebElements("tableNoteTitle")) {
+            titles.add(temp.getAttribute("innerHTML"));
         }
-
-        return new List[]{titles, descriptions};
+        List<String> descriptions = new ArrayList<>();
+        for(WebElement temp : this.getWebElements("tableNoteDescription")) {
+            descriptions.add(temp.getAttribute("innerHTML"));
+        }
+        return new List[] { titles, descriptions };
     }
 
-    public void clickEditNote(WebDriver driver, int id) {
-        this.getTableRows(driver, "noteTable").get(id).findElement(By.tagName("td")).findElement(By.tagName("button")).click();
+    public void editNote(int id, String title, String description) {
+        List<WebElement> noteEdits = this.getWebElements("tableNoteEdit");
+        executor.executeScript("arguments[0].click();", noteEdits.get(id));
+        this.createNote(title, description);
     }
 
-    public void deleteNote(WebDriver driver, int id) {
-        this.getTableRows(driver, "noteTable").get(id).findElement(By.tagName("td")).findElement(By.tagName("a")).click();
+    public void deleteNote(int id) {
+        List<WebElement> noteDeletes = this.getWebElements("tableNoteDelete");
+        executor.executeScript("arguments[0].click();", noteDeletes.get(id));
     }
 
     // Credential methods
 
-    public void navCredentialsAndAdd() throws InterruptedException {
-        this.navCredentialsTab.click();
-        Thread.sleep(1000);
-        this.buttonAddNewCredential.click();
-        Thread.sleep(1000);
+    public void navToCredentialsTab() {
+        this.clickButton("nav-credentials-tab");
+    }
+
+    public void navCredentialsAndAdd() {
+        this.navToCredentialsTab();
+        this.clickButton("button-add-new-credential");
     }
 
     public void createCredential(String url, String username, String password) {
-        this.credentialUrl.clear();
-        this.credentialUrl.sendKeys(url);
-
-        this.credentialUsername.clear();
-        this.credentialUsername.sendKeys(username);
-
-        this.credentialPassword.clear();
-        this.credentialPassword.sendKeys(password);
-
-        this.credentialSubmit.submit();
+        this.setValue("credential-url", url);
+        this.setValue("credential-username", username);
+        this.setValue("credential-password", password);
+        this.clickButton("credential-save");
     }
 
-    public List<WebElement[]> getCredentials(WebDriver driver) {
-        List<WebElement[]> result = new ArrayList<>();
-        for(WebElement tr : this.getTableRows(driver, "credentialTable")) {
-            List<WebElement> tds = tr.findElements(By.tagName("td"));
-            WebElement editButton = tds.get(0).findElement(By.tagName("button"));
-            WebElement deleteButton = tds.get(0).findElement(By.tagName("a"));
-            WebElement url = tr.findElement(By.tagName("th"));
-            WebElement username = tds.get(1);
-            WebElement password = tds.get(2);
-
-            WebElement[] credentials = new WebElement[] { editButton, deleteButton, url, username, password };
-            result.add(credentials);
+    public List<String>[] getCredentials() {
+        List<String> urls = new ArrayList<>();
+        for(WebElement temp : this.getWebElements("tableCredUrl")) {
+            urls.add(temp.getAttribute("innerHTML"));
         }
-        return result;
+        List<String> usernames = new ArrayList<>();
+        for(WebElement temp : this.getWebElements("tableCredUsername")) {
+            usernames.add(temp.getAttribute("innerHTML"));
+        }
+        List<String> passwords = new ArrayList<>();
+        for(WebElement temp : this.getWebElements("tableCredPassword")) {
+            passwords.add(temp.getAttribute("innerHTML"));
+        }
+        return new List[] { urls, usernames, passwords };
+    }
+
+    public void editCredential(int id, String url, String username, String password) {
+        List<WebElement> credEdits = this.getWebElements("tableCredEdit");
+        executor.executeScript("arguments[0].click();", credEdits.get(id));
+        this.createCredential(url, username, password);
+    }
+
+    public void deleteCredential(int id) {
+        List<WebElement> credDeletes = this.getWebElements("tableCredDelete");
+        executor.executeScript("arguments[0].click();", credDeletes.get(id));
     }
 }

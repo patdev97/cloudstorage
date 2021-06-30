@@ -1,41 +1,24 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 
 public class SignupPage {
 
-    @FindBy(id = "inputFirstName")
-    private WebElement inputFirstName;
-
-    @FindBy(id = "inputLastName")
-    private WebElement inputLastName;
-
-    @FindBy(id = "inputUsername")
-    private WebElement inputUsername;
-
-    @FindBy(id = "inputPassword")
-    private WebElement inputPassword;
+    private WebDriver driver;
+    private JavascriptExecutor executor;
 
     public SignupPage(WebDriver driver) {
-        PageFactory.initElements(driver, this);
+        this.driver = driver;
+        this.executor = (JavascriptExecutor) driver;
     }
 
     public void signup(String firstName, String lastName, String username, String password) {
-        this.inputFirstName.clear();
-        this.inputFirstName.sendKeys(firstName);
-
-        this.inputLastName.clear();
-        this.inputLastName.sendKeys(lastName);
-
-        this.inputUsername.clear();
-        this.inputUsername.sendKeys(username);
-
-        this.inputPassword.clear();
-        this.inputPassword.sendKeys(password);
-
-        this.inputPassword.submit();
+        executor.executeScript("arguments[0].value='" + firstName + "';", driver.findElement(By.id("inputFirstName")));
+        executor.executeScript("arguments[0].value='" + lastName + "';", driver.findElement(By.id("inputLastName")));
+        executor.executeScript("arguments[0].value='" + username + "';", driver.findElement(By.id("inputUsername")));
+        executor.executeScript("arguments[0].value='" + password + "';", driver.findElement(By.id("inputPassword")));
+        executor.executeScript("arguments[0].click();", driver.findElement(By.id("inputSubmit")));
     }
 }
